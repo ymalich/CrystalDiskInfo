@@ -1145,6 +1145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp" />
+    <ClCompile Include="NamedAttributesMapper.cpp" />
     <ClCompile Include="DiskInfo.cpp" />
     <ClCompile Include="DiskInfoDlg.cpp" />
     <ClCompile Include="DiskInfoDlgCopy.cpp" />
@@ -1412,11 +1413,13 @@
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="CommonFx.h" />
+    <ClInclude Include="NamedAttributesMapper.h" />
     <ClInclude Include="DiskInfo.h" />
     <ClInclude Include="DiskInfoDlg.h" />
     <ClInclude Include="FontSelectionDlg.h" />
     <ClInclude Include="GraphDlg.h" />
     <ClInclude Include="HealthDlg.h" />
+    <ClInclude Include="INamedAttributesMapper.h" />
     <ClInclude Include="NVMeInterpreter.h" />
     <ClInclude Include="OptionDlg.h" />
     <ClInclude Include="Priscilla\ButtonFx.h" />

@@ -6,9 +6,12 @@
 /*---------------------------------------------------------------------------*/
 
 #include "../stdafx.h"
+#include <vector>
+
 #include "UtilityFx.h"
 
 #include <io.h>
+
 #pragma comment(lib,"version.lib")
 
 ////------------------------------------------------
@@ -180,4 +183,39 @@ DWORD B8toB32(BYTE b0, BYTE b1, BYTE b2, BYTE b3)
 		+ ((DWORD)b0 <<  0);
 
 	return data;
+}
+
+
+std::vector<CString> SplitString(const CString& str, TCHAR token, bool bTrim)
+{
+	std::vector<CString> result;
+	int j = 0;
+	while ((j < str.GetLength()))
+	{
+		CString strLine;
+		while (str[j] != 0 && str[j] != token) strLine.AppendChar(str[j++]);
+
+		if (bTrim)
+		{
+			strLine.TrimRight();
+			strLine.TrimLeft();
+		}
+
+		result.push_back(strLine);
+		j++;
+	}
+
+	return result;
+}
+
+
+CString GetValueAtOrEmpty(std::vector<CString>& items, int index)
+{
+	CString value;
+	if (items.size() > index)
+	{
+		value = items[index];
+	}
+
+	return value;
 }

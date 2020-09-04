@@ -19,6 +19,7 @@
 
 #include "locale.h"
 #include <complex>
+#include "NamedAttributesMapper.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -104,6 +105,8 @@ CDiskInfoDlg::CDiskInfoDlg(CWnd* pParent /*=NULL*/, BOOL flagStartupExit)
 
 	m_Ini = ((CDiskInfoApp*)AfxGetApp())->m_Ini;
 	m_OffsetX = 0;
+
+	m_Ata.SetNamedAttributesMapper(new NamedAttributesMapper(nullptr));
 
 #ifdef SUISHO_SHIZUKU_SUPPORT
 	#ifdef KUREI_KEI_SUPPORT

@@ -24,7 +24,7 @@ int CALLBACK EnumFontFamExProcDefaultFont(ENUMLOGFONTEX *lpelfe, NEWTEXTMETRICEX
 	{
 		*((BOOL*)lParam) = TRUE;
 	}
-    return TRUE;
+	return TRUE;
 }
 
 BOOL CDiskInfoDlg::OnInitDialog()
@@ -42,12 +42,12 @@ BOOL CDiskInfoDlg::OnInitDialog()
 	TCHAR str[256];
 	
 	CClientDC dc(this);
-    LOGFONT logfont;
+	LOGFONT logfont;
 	CString defaultFontFace;
 	BOOL hasDefaultFont = FALSE;
-    ZeroMemory(&logfont, sizeof(LOGFONT)); 
-    logfont.lfCharSet = DEFAULT_CHARSET;
-    ::EnumFontFamiliesExW(dc.m_hDC, &logfont, (FONTENUMPROC)EnumFontFamExProcDefaultFont, (INT_PTR)(&hasDefaultFont), 0);
+	ZeroMemory(&logfont, sizeof(LOGFONT)); 
+	logfont.lfCharSet = DEFAULT_CHARSET;
+	::EnumFontFamiliesExW(dc.m_hDC, &logfont, (FONTENUMPROC)EnumFontFamExProcDefaultFont, (INT_PTR)(&hasDefaultFont), 0);
 	
 	if(hasDefaultFont)
 	{

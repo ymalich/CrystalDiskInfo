@@ -13,6 +13,7 @@
 #include "SlotSpeedGetter.h"
 #include "NVMeInterpreter.h"
 #include "StorageQuery.h"
+#include "INamedAttributesMapper.h"
 
 static const TCHAR* commandTypeString[] =
 {
@@ -1656,6 +1657,8 @@ public:
 
 	VOID SetAtaPassThroughSmart(BOOL flag);
 
+	VOID SetNamedAttributesMapper(INamedAttributesMapper* namedAttributesMapper);
+
 	struct DISK_POSITION
 	{
 		INT					PhysicalDriveId;
@@ -1960,6 +1963,7 @@ protected:
 	BOOL FillSmartThreshold(ATA_SMART_INFO* asi);
 	
 	VOID CheckSsdSupport(ATA_SMART_INFO &asi);
+	void MapAttributeToNamedProperty(CAtaSmart::ATA_SMART_INFO& asi, const SMART_ATTRIBUTE& attr);
 	BOOL IsSsdOld(ATA_SMART_INFO &asi);
 	BOOL IsSsdMtron(ATA_SMART_INFO &asi);
 	BOOL IsSsdIndlinx(ATA_SMART_INFO &asi);
@@ -1992,4 +1996,6 @@ protected:
 	static int Compare(const void *p1, const void *p2);
 
 	CString GetModelSerial(CString &model, CString &serialNumber);
+
+	std::auto_ptr<INamedAttributesMapper> m_NamedAttributesMapper;
 };

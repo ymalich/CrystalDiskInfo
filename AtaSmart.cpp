@@ -9,6 +9,7 @@
 #include "stdafx.h"
 #include "AtaSmart.h"
 #include <wbemcli.h>
+#include <vector>
 
 #include "DnpService.h"
 #include "OsInfoFx.h"
@@ -3527,6 +3528,8 @@ VOID CAtaSmart::CheckSsdSupport(ATA_SMART_INFO &asi)
 // Update Life
 	for(DWORD j = 0; j < asi.AttributeCount; j++)
 	{
+		MapAttributeToNamedProperty(asi, asi.Attribute[j]);
+
 		switch(asi.Attribute[j].Id)
 		{
 		case 0xBB:
@@ -3922,6 +3925,96 @@ VOID CAtaSmart::CheckSsdSupport(ATA_SMART_INFO &asi)
 		}
 	}
 }
+
+void CAtaSmart::MapAttributeToNamedProperty(CAtaSmart::ATA_SMART_INFO& asi, const SMART_ATTRIBUTE& attribute)
+{
+	if (m_NamedAttributesMapper.get() == nullptr)
+	{
+		return;
+	}
+
+	// check mapping by vendor
+	auto mapping = m_NamedAttributesMapper.get()->GetAttributeMapping(asi.SmartKeyName, attribute.Id);
+	if (mapping.IsEmpty())
+	{
+		// fallback - check mapping by SSD model
+		mapping = m_NamedAttributesMapper.get()->GetAttributeMapping(asi.Model, attribute.Id);
+	}
+
+	if (mapping.IsEmpty())
+	{
+		return;
+	}
+
+	// e.g "WearLevelingCount,RawValue,0,4,1"
+	auto items = SplitString(mapping, _T(','), true);
+	// item #0  - custom property name, e.g. WearLevelingCount, Life etc
+	// item #1  - attribute property name, e.g. RawValue, CurrentValue etc)
+	// item #2  - RawValue first byte index, e.g. 0
+	// item #3  - RawValue bytes count, e.g. 4 or 6
+	// item #4  - divider, e.g. 1024, or 1
+	// item #5  - ???
+
+	ULONG64 value = -1;
+	auto attrPropName = GetValueAtOrEmpty(items, 1); // attribute property name
+	if (attrPropName.IsEmpty())
+	{
+		return;
+	}
+
+	if (attrPropName == _T("CurrentValue"))
+	{
+		value = attribute.CurrentValue;
+	}
+	else if (attrPropName == _T("RawValue"))
+	{
+		int firstIndex = _ttoi(GetValueAtOrEmpty(items, 2)); // first index
+		int bytesCount = _ttoi(GetValueAtOrEmpty(items, 3)); // count
+		if (bytesCount > 0 && firstIndex >= 0 && firstIndex < 5)
+		{
+			value = 0;
+			for (size_t i = firstIndex, bIndex = 0; i < bytesCount; i++, bIndex++)
+			{
+				ULONG64 b = attribute.RawValue[i];
+				value |= b << (8 * bIndex);
+			}
+		}
+	}
+
+	ULONG64 divider = _ttoi64(GetValueAtOrEmpty(items, 4)); // divider
+	if (divider > 1)
+	{
+		value /= divider;
+	}
+
+	auto customPropName = GetValueAtOrEmpty(items, 0); // custom property name
+
+	if (customPropName == _T("WearLevelingCount"))
+	{
+		asi.WearLevelingCount = (int)value;
+	}
+	else if (customPropName == _T("Life"))
+	{
+		asi.Life = (int)value;
+	}
+	else if (customPropName == _T("HostReads"))
+	{
+		asi.HostReads = value;
+	}
+	else if (customPropName == _T("HostWrites"))
+	{
+		asi.HostWrites = value;
+	}
+	else if (customPropName == _T("NandWrites"))
+	{
+		asi.NandWrites = value;
+	}
+	else if (customPropName == _T("GBytesErased"))
+	{
+		asi.GBytesErased = value;
+	}
+}
+
 
 /*
 INT CAtaSmart::CheckPlextorNandWritesUnit(ATA_SMART_INFO &asi)
@@ -10177,4 +10270,9 @@ CString CAtaSmart::GetModelSerial(CString &model, CString &serialNumber)
 	modelSerial.Replace(_T("|"), _T(""));
 
 	return modelSerial;
+}
+
+VOID CAtaSmart::SetNamedAttributesMapper(INamedAttributesMapper* customAttributesMapper)
+{
+	m_NamedAttributesMapper.reset(customAttributesMapper);
 }

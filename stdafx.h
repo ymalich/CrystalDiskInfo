@@ -48,6 +48,8 @@
 #include "DHtmlMainDialog.h"	// CDHtmlMainDialog by hiyohiyo
 
 #include <comutil.h>
+#include <memory>
+#include <vector>
 
 #include "CommonFx.h"
 #include "UtilityFx.h"
